@@ -55,10 +55,10 @@ class UserController extends AbstractController
         }
         //===============================================================================
      
-        $profil = $user->getRoles(); 
+       // $profil = $user->getRoles(); 
         $statuser = $user->getEtat();
       
-        if (!empty($statuser) && $profil !=['ROLE_CAISIER']) {
+        if (!empty($statuser)) {
         $partenstat =$user->getPartenaire()->getEtat();
         
         if ($partenstat =='bloquer') 
@@ -76,7 +76,15 @@ class UserController extends AbstractController
                 'mesge' => 'Votre accés est bloqué,veillez vous adressez à votre administrateur!'
             ];
             return new JsonResponse($data, 400);
-        }else{
+        }
+        elseif($statuser == 'bloquer'){
+            $dat= [
+                'stat' => 400,
+                'mesge' => 'Votre accés est bloqué,veillez vous adressez à votre administrateur!'
+            ];
+            return new JsonResponse($dat, 400);
+        }
+        else{
         $token = $JWTEncoder->encode([
             'username' => $user->getUsername(),
             'exp' => time() + 3600 // 1 hour expiration

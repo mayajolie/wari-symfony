@@ -109,13 +109,12 @@ class AdminSystemController extends FOSRestController
     }
 
     /**
-     * @Route("/partenaires", name="find_partenaires",methods={"GET"})
+     * @Rest\Get("/partenaires", name="findpartenaires")
       */
     public function liste()
     {
         $repo = $this->getDoctrine()->getRepository(Partenaires::class);
         $partenaire = $repo->findAll();
-        var_dump($partenaire);
         return $this->handleView($this->view($partenaire));
     }
    

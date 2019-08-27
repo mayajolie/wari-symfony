@@ -1,1 +1,1 @@
-a:0:{}
+a:1:{i:0;a:6:{s:4:"type";i:16384;s:7:"message";s:192:"The "App\Controller\AdminSystemController" class extends "FOS\RestBundle\Controller\FOSRestController" that is deprecated since FOSRestBundle 2.5, use {@see AbstractFOSRestController} instead.";s:4:"file";s:63:"/var/www/html/symfony/vendor/symfony/debug/DebugClassLoader.php";s:4:"line";i:200;s:5:"trace";a:1:{i:0;a:1:{s:8:"function";s:17:"spl_autoload_call";}}s:5:"count";i:1;}}

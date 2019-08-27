@@ -16,7 +16,7 @@ return [
     '_profiler_exception' => [['token'], ['_controller' => 'web_profiler.controller.exception::showAction'], [], [['text', '/exception'], ['variable', '/', '[^/]++', 'token', true], ['text', '/_profiler']], [], []],
     '_profiler_exception_css' => [['token'], ['_controller' => 'web_profiler.controller.exception::cssAction'], [], [['text', '/exception.css'], ['variable', '/', '[^/]++', 'token', true], ['text', '/_profiler']], [], []],
     'super' => [[], ['_controller' => 'App\\Controller\\AdminSystemController::admin'], [], [['text', '/api/admin']], [], []],
-    'find_partenaires' => [[], ['_controller' => 'App\\Controller\\AdminSystemController::liste'], [], [['text', '/api/partenaires']], [], []],
+    'findpartenaires' => [[], ['_controller' => 'App\\Controller\\AdminSystemController::liste'], [], [['text', '/api/partenaires']], [], []],
     'bloqr' => [['id'], ['_controller' => 'App\\Controller\\AdminSystemController::bloquerPartenaie'], [], [['variable', '/', '[^/]++', 'id', true], ['text', '/api/ajout']], [], []],
     'compt' => [[], ['_controller' => 'App\\Controller\\AdminSystemController::ajoutComptB'], [], [['text', '/api/comptB']], [], []],
     'depot' => [[], ['_controller' => 'App\\Controller\\AdminSystemController::Depot'], [], [['text', '/api/depot']], [], []],
