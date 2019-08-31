@@ -13,8 +13,6 @@ class DepotType extends AbstractType
     {
         $builder
             ->add('montant')
-            ->add('dateDepot')
-            ->add('cassier')
             ->add('numeroCompt')
         ;
     }

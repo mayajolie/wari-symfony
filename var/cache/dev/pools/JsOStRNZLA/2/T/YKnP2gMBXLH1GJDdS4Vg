@@ -1,0 +1,29 @@
+<?php
+
+namespace Symfony\Component\VarExporter\Internal;
+
+return $getExpiry ? PHP_INT_MAX : Hydrator::hydrate(
+    $o = [
+        clone (Registry::$prototypes['FOS\\RestBundle\\Controller\\Annotations\\Get'] ?? Registry::p('FOS\\RestBundle\\Controller\\Annotations\\Get')),
+    ],
+    null,
+    [
+        'Symfony\\Component\\Routing\\Annotation\\Route' => [
+            'path' => [
+                '/users',
+            ],
+            'name' => [
+                'finduser',
+            ],
+            'methods' => [
+                [
+                    'GET',
+                ],
+            ],
+        ],
+    ],
+    [
+        $o[0],
+    ],
+    []
+);

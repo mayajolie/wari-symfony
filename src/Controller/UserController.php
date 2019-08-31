@@ -7,6 +7,7 @@ use App\Form\UserType;
 use App\Entity\Partenaires;
 use App\Entity\CompBancaire;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -46,61 +47,83 @@ class UserController extends AbstractController
         
         if (!$user) 
         {
-            throw $this->createNotFoundException('Nom d\'Utilisateur incorrect');
+            return $this->createNotFoundException('Nom d\'Utilisateur incorrect');
         }
         $isValid = $this->passwordEncoder->isPasswordValid($user,$values->password);
         if (!$isValid) 
         {
-            throw new BadCredentialsException();
+            return new BadCredentialsException();
         }
-        //===============================================================================
+  //===============================================================================
      
-       // $profil = $user->getRoles(); 
-        $statuser = $user->getEtat();
+        $profil = $user->getRoles(); 
+       $statuser = $user->getEtat();
       
-        if (!empty($statuser)) {
-        $partenstat =$user->getPartenaire()->getEtat();
-        
-        if ($partenstat =='bloquer') 
+       if (!empty($statuser) && $profil!=['ROLE_CAISIER'] ) {
+       $partenstat =$user->getPartenaire()->getEtat();
+       
+       if ($partenstat =='bloquer') 
+       {
+           $data = [
+               'stat' => 400,
+               'messge' => 'Accés refusé! votre prestataire a été bloqué.'
+           ];
+           return new JsonResponse($data, 400);
+       }
+       elseif ($partenstat == 'Actif' ||  $statuser == 'bloquer')
+       {
+           $data = [
+               'stat' => 400,
+               'mesge' => 'Votre accés est bloqué,veillez vous adressez à votre administrateur!'
+           ];
+           return new JsonResponse($data, 400);
+       }
+       elseif($statuser == 'bloquer'){
+           $dat= [
+               'stat' => 400,
+               'mesge' => 'Votre accés est bloqué,veillez vous adressez à votre administrateur!'
+           ];
+           return new JsonResponse($dat, 400);
+       }
+       else{
+       $token = $JWTEncoder->encode([
+           'username' => $user->getUsername(),
+           'roles'=>$user->getRoles(),
+           'exp' => time() + 3600 // 1 hour expiration
+       ]);
+       return new JsonResponse(['token' => $token]);
+       }
+    }
+       elseif($profil==['ROLE_CAISIER']) {
+        if ($statuser =='bloquer') 
         {
             $data = [
                 'stat' => 400,
-                'messge' => 'Accés refusé! votre prestataire a été bloqué.'
+                'messge' => 'Accés refusé! votre avez  été bloqué.'
             ];
             return new JsonResponse($data, 400);
         }
-        elseif ($partenstat == 'Actif' ||  $statuser == 'bloquer')
-        {
-            $data = [
-                'stat' => 400,
-                'mesge' => 'Votre accés est bloqué,veillez vous adressez à votre administrateur!'
-            ];
-            return new JsonResponse($data, 400);
-        }
-        elseif($statuser == 'bloquer'){
-            $dat= [
-                'stat' => 400,
-                'mesge' => 'Votre accés est bloqué,veillez vous adressez à votre administrateur!'
-            ];
-            return new JsonResponse($dat, 400);
-        }
-        else{
-        $token = $JWTEncoder->encode([
-            'username' => $user->getUsername(),
-            'exp' => time() + 3600 // 1 hour expiration
-        ]);
-        return new JsonResponse(['token' => $token]);
-        }
-        }
-        else
-        {
-            $token = $JWTEncoder->encode([
-                'username' => $user->getUsername(),
-                'exp' => time() + 3600 // 1 hour expiration
-            ]);
-
-            return new JsonResponse(['token' => $token]);
-        }
+         
+       else
+       {
+           $token = $JWTEncoder->encode([
+               'username' => $user->getUsername(),
+               'roles'=>$user->getRoles(),
+               'exp' => time() + 3600 // 1 hour expiration
+           ]);
+           return new JsonResponse(['token' => $token]);
+       }
+    }
+       
+       else
+       {
+           $token = $JWTEncoder->encode([
+               'username' => $user->getUsername(),
+               'roles'=>$user->getRoles(),
+               'exp' => time() + 3600 // 1 hour expiration
+           ]);
+           return new JsonResponse(['token' => $token]);
+       }
     }
     /**
      * @Route("/new", name="user_new", methods={"GET","POST"})
@@ -114,7 +137,7 @@ class UserController extends AbstractController
         $Values =$request->request->all();
         $form->submit($Values);
 
-        $Files=$request->files->all()['imageName'];
+    $Files=$request->files->all()['imageName'];
         $profil=$Values['profil'];
         switch ($profil) {
             case 1:
@@ -141,7 +164,7 @@ class UserController extends AbstractController
         }
         
         $user->setPassword($passwordEncoder->encodePassword($user,$form->get('plainPassword')->getData()));
-        $user->setEtat('bloquer');      
+        $user->setEtat('actif');      
 
 
         $user->setImageFile($Files);
@@ -234,5 +257,32 @@ class UserController extends AbstractController
         return new JsonResponse($data);
     }
    
+     /**
+      * @Route("/useeqgfrs", name="findugdqser", methods={"GET"})
+      */
+    public function listeuser(){
+        //UserRepository $userRepo, SerializerInterface $serializer
+    //     $users = $userRepo->findAll();
+    //     $data = $serializer->serialize($users, 'json',[
+    //     'groups' => ['list']
+    //     ]);
+    //     return new Response($data, 200, [
+    //        'Content-Type' => 'application/json'
+    //    ]);
+   
+    //     // $uspar=$this->getUser()->getPartenaire();
+       // var_dump($uspar);die();
+        $repo = $this->getDoctrine()->getRepository(User::class);
+        $partenaire = $repo->findAll();
+        // foreach ($partenaire as  $value) {
+        //    $part= $value->getPartenaire();
+        //    if ($part==$uspar) {
+            var_dump($partenaire);
+            return $this->handleView($this->view($partenaire));
+        
+        
+    //     //var_dump($users);
+    
+    }
 
 }

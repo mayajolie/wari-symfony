@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Entity\Depot;
 use App\Form\UserType;
+use App\Form\DepotType;
 use App\Form\ComptBanType;
 use App\Entity\Partenaires;
 use App\Form\PartenaireType;
 use App\Entity\ComptBancaire;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -110,7 +112,7 @@ class AdminSystemController extends FOSRestController
 
     /**
      * @Rest\Get("/partenaires", name="findpartenaires")
-      */
+     */
     public function liste()
     {
         $repo = $this->getDoctrine()->getRepository(Partenaires::class);
@@ -118,7 +120,27 @@ class AdminSystemController extends FOSRestController
         return $this->handleView($this->view($partenaire));
     }
    
+   /**
+     * @Rest\Get("/users", name="finduser")
+     */
+    public function listeuser()
+    {
+        // $users = $userrepo->findAll();
+        // //$data = $serializer->serialize($users, 'json');
 
+        // return ($users);
+        $uspar=$this->getUser()->getPartenaire();
+        $repo = $this->getDoctrine()->getRepository(User::class);
+        $partenaire = $repo->findAll();
+        foreach ($partenaire as  $value) {
+           $part= $value->getPartenaire();
+           if ($part==$uspar) {
+            return $this->handleView($this->view($part));
+        }
+        }
+        //var_dump($users);
+    }
+   
   
 
     /**
@@ -158,9 +180,12 @@ class AdminSystemController extends FOSRestController
      */
     public function ajoutComptB(Request $request,EntityManagerInterface $entityManager)
     {
-        $values = json_decode($request->getContent());
         $compb = new ComptBancaire();
-            //generer un numero de compte bancaire
+     $form = $this->createForm(ComptBanType::class, $compb);
+     $form->handleRequest($request);
+     $Values =$request->request->all();
+     $form->submit($Values);
+           // generer un numero de compte bancaire
             $code="";
             $jour = date('d');
             $mois = date('m');
@@ -171,8 +196,9 @@ class AdminSystemController extends FOSRestController
             $code = ($annee . $mois . $jour . $heure . $minutes . $seconde);
             $compb->setNumCompt($code);
             $compb->setSolde("0");
+            $ninea=$Values['ninea'];
             $repo = $this->getDoctrine()->getRepository(Partenaires::class);
-            $partenaire = $repo->find($values->partenaire);
+            $partenaire = $repo->findOneBy(['ninea'=>$ninea]);
             $compb->setPartenaire($partenaire);
 
             
@@ -187,55 +213,52 @@ class AdminSystemController extends FOSRestController
     
 
     }
+
     /**
-     * @Route("/depot", name="depot", methods={"POST"})
-     * @IsGranted("ROLE_CAISSIER")
+     * @Route("/depot", name="depotfor", methods={"POST"})
+     * @IsGranted("ROLE_CAISIER")
      */
-    public function Depot(Request $request, EntityManagerInterface $entityManager)
+    public function Depotav(Request $request, EntityManagerInterface $entityManager)
     {
-        $values = json_decode($request->getContent());
-        if (isset($values->montant)) {
-            $depot = new Depot();
-            $depot->setMontant($values->montant);
-            $depot->setDateDepot(new \DateTime());
-            //recuperation de l'id du caissier
-            $repo = $this->getDoctrine()->getRepository(User::class);
-            $caissier = $repo->find($values->caissier); 
-            $depot->setCassier($caissier);
-             //recuperation du numero de compte
-             $repo = $this->getDoctrine()->getRepository(ComptBancaire::class);
-             $numcompt = $repo->findOneBy(['numCompt'=>$values->numeroCompt]);
-             $depot->setNumeroCompt($numcompt);
-            //incrementant du solde du partenaire du montant du depot
-            $numcompt->setSolde($numcompt->getSolde() + $values->montant);
+     $depot = new Depot();    
+     $form = $this->createForm(DepotType::class, $depot);
+     $form->handleRequest($request);
+     $Values =$request->request->all();
+     $form->submit($Values);
+     $depot->setDateDepot(new \DateTime());
+     $depot->setCassier($this->getUser());
+     $montant=$Values['montant'];
+     $depot->setMontant($montant);
+     $numeroCompt=$Values['Numero'];
+     $repo = $this->getDoctrine()->getRepository(ComptBancaire::class);
+     $numcompt = $repo->findOneBy(['numCompt'=>$numeroCompt]);
+     $depot->setNumeroCompt($numcompt);
+    //incrementant du solde du partenaire du montant du depot
+    $numcompt->setSolde($numcompt->getSolde() + $montant);
+    if($montant<"75000") {
+        $data = [
+            'status' => 500,
+            'message' =>"Le solde minimum autorisée est 75000",
+        ];
 
-            if($values->montant<"75000") {
-                $data = [
-                    'status' => 500,
-                    'message' =>"Le solde minimum autorisée est 75000",
-                ];
-        
-                return new JsonResponse($data, 500);
-            }
-            else{
-            //enregistrement au niveau du compte bancaire
-            $entityManager->persist($numcompt);
+        return new JsonResponse($data, 500);
+    } else{
+    
+    //enregistrement au niveau du compte bancaire
+    $entityManager->persist($numcompt);
 
 
-            //enregistrement au niveau du depot
-            $entityManager->persist($depot);
-            $entityManager->flush();
+    //enregistrement au niveau du depot
+    $entityManager->persist($depot);
+    $entityManager->flush();
 
-            $data = [
-                'status_1' => 201,
-                'message' => 'Le depot  a été enregistré',
-            ];
+    $data = [
+        'status_1' => 201,
+        'message' => 'Le depot  a été enregistré',
+    ];
 
-            return new JsonResponse($data, 201);
-        }
-        }
-       
+    return new JsonResponse($data, 201);
+    }
 
-        return $this->handleView($this->view(['status' => 'ok'], Response::HTTP_CREATED));
     }
 }

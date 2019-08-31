@@ -43,7 +43,7 @@ public function __construct(UserPasswordEncoderInterface $encoder)
         $caisier->setUsername('bsokhna');
         $password = $this->encoder->encodePassword($user, 'bsokhna');
         $caisier->setPassword($password);
-        $caisier->setRoles(['ROLE_CAISSIER']);
+        $caisier->setRoles(['ROLE_CAISIER']);
         $caisier->setNom('ngom');
         $caisier->setPrenom('sokhna');
         $caisier->setAdresse('parcelle');
