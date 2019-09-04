@@ -20,6 +20,9 @@ class TransactionType extends AbstractType
             ->add('cniB')
             ->add('telephoneE')
             ->add('telephoneB')
+            ->add('montantPaye')
+
+
         ;
     }
 

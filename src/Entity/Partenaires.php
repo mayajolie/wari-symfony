@@ -9,6 +9,7 @@ use FOS\RestBundle\Validator\Constraints\Regex;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 
 /**
@@ -57,6 +58,7 @@ class Partenaires
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="partenaire")
+     * @Groups({"listUsers"})
      */
     private $users;
 

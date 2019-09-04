@@ -71,7 +71,7 @@ class AdminSystemController extends FOSRestController
 
         $user->setPassword($passwordEncoder->encodePassword($user,$form->get('plainPassword')->getData()));
         $user->setRoles(["ROLE_ADMIN"]);
-        $user->setEtat('actif');
+        $user->setEtat(0);
         $user->setCompteBancaire($code);
         $user->setPartenaire($partenaire);
             $entityManager = $this->getDoctrine()->getManager();
@@ -110,39 +110,31 @@ class AdminSystemController extends FOSRestController
   
     }
 
-    /**
-     * @Rest\Get("/partenaires", name="findpartenaires")
-     */
-    public function liste()
-    {
-        $repo = $this->getDoctrine()->getRepository(Partenaires::class);
-        $partenaire = $repo->findAll();
-        return $this->handleView($this->view($partenaire));
-    }
-   
-   /**
-     * @Rest\Get("/users", name="finduser")
-     */
-    public function listeuser()
-    {
-        // $users = $userrepo->findAll();
-        // //$data = $serializer->serialize($users, 'json');
+    // /**
+    //  * @Rest\Get("/partenaires", name="findpartenaires")
+    //  */
+    // public function liste()
+    // {
+    //     $repo = $this->getDoctrine()->getRepository(Partenaires::class);
+    //     $partenaire = $repo->findAll();
+    //     return $this->handleView($this->view($partenaire));
+    // }
+     /**
+      * @Route("/listPart/{id}", name="listePart", methods={"GET"})
+      */
+      public function listeuser(UserRepository $userRepo, SerializerInterface $serializer,EntityManagerInterface $entityManager){
+        
+        $listUser= $entityManager->getRepository(Partenaires::class);
+        $users = $listUser->findAll();
+        // Serialize your object in Json
+        $jsonObject = $serializer->serialize($users, 'json', [
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+            }
+        ]);
+        return new Response($jsonObject, 200, ['Content-Type' => 'application/json']);
 
-        // return ($users);
-        $uspar=$this->getUser()->getPartenaire();
-        $repo = $this->getDoctrine()->getRepository(User::class);
-        $partenaire = $repo->findAll();
-        foreach ($partenaire as  $value) {
-           $part= $value->getPartenaire();
-           if ($part==$uspar) {
-            return $this->handleView($this->view($part));
         }
-        }
-        //var_dump($users);
-    }
-   
-  
-
     /**
      * @Route("/ajout/{id}", name="bloqr", methods={"PUT"})
      * @IsGranted("ROLE_SUPER_ADMIN")
@@ -232,6 +224,9 @@ class AdminSystemController extends FOSRestController
      $numeroCompt=$Values['Numero'];
      $repo = $this->getDoctrine()->getRepository(ComptBancaire::class);
      $numcompt = $repo->findOneBy(['numCompt'=>$numeroCompt]);
+     $nom=$numcompt->getPartenaire();
+     dump($nom); die();
+
      $depot->setNumeroCompt($numcompt);
     //incrementant du solde du partenaire du montant du depot
     $numcompt->setSolde($numcompt->getSolde() + $montant);
@@ -260,5 +255,52 @@ class AdminSystemController extends FOSRestController
     return new JsonResponse($data, 201);
     }
 
+    }
+
+    /**
+    * @Route("/bloqueDebloqueUser/{id}", name="bloqueDebloqueUser", methods={"POST","GET"})
+    */
+    public function bloqueDebloqueUser(Request $request,EntityManagerInterface $mng,$id)
+    {
+        $user=$this->getDoctrine()->getRepository(User::class)->findOneBy(['id'=>$id]);
+        if ($user->getEtat()=='Actif') {
+            $user->setEtat('Bloque');
+        }
+        else {
+            $user->setEtat('Bloque');
+        }
+        $mng = $this->getDoctrine()->getManager();
+        $mng->persist($user);
+        $mng->flush();
+        $data = [
+            'status' => 200,
+            'message' => 'L\'etat a bien été mis à jour'
+        ];
+        return new JsonResponse($data);
+    }
+    /**
+    * @Route("/bloqueDebloquePart/{id}", name="bloqueDebloquePart", methods={"POST","GET"})
+    */
+    public function bloqueDebloquePart(Request $request,EntityManagerInterface $mng,$id)
+    {
+        $part=$this->getDoctrine()->getRepository(Partenaires::class)->findOneBy(['id'=>$id]);
+        $users=$part->getUsers();
+        foreach ($users as $key => $value) {
+            $this->bloqueDebloqueUser($request,$mng,$value->getId());
+        }
+        if ($part->getEtat()=='Actif') {
+            $part->setEtat('Bloque');
+        }
+        else {
+            $part->setEtat('Bloque');
+        }
+        $mng= $this->getDoctrine()->getManager();
+        $mng->persist($part);
+        $mng->flush();
+        $data = [
+            'status' => 200,
+            'message' => ' L\'etat a bien été mis à jour'
+        ];
+        return new JsonResponse($data);
     }
 }

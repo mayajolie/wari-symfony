@@ -14,8 +14,6 @@ return [
         '/_profiler/phpinfo' => [[['_route' => '_profiler_phpinfo', '_controller' => 'web_profiler.controller.profiler::phpinfoAction'], null, null, null, false, false, null]],
         '/_profiler/open' => [[['_route' => '_profiler_open_file', '_controller' => 'web_profiler.controller.profiler::openAction'], null, null, null, false, false, null]],
         '/api/admin' => [[['_route' => 'super', '_controller' => 'App\\Controller\\AdminSystemController::admin'], null, ['POST' => 0, 'GET' => 1], null, false, false, null]],
-        '/api/partenaires' => [[['_route' => 'findpartenaires', '_controller' => 'App\\Controller\\AdminSystemController::liste'], null, ['GET' => 0], null, false, false, null]],
-        '/api/users' => [[['_route' => 'finduser', '_controller' => 'App\\Controller\\AdminSystemController::listeuser'], null, ['GET' => 0], null, false, false, null]],
         '/api/comptB' => [[['_route' => 'compt', '_controller' => 'App\\Controller\\AdminSystemController::ajoutComptB'], null, ['POST' => 0], null, false, false, null]],
         '/api/depot' => [[['_route' => 'depotfor', '_controller' => 'App\\Controller\\AdminSystemController::Depotav'], null, ['POST' => 0], null, false, false, null]],
         '/api/tra' => [[['_route' => 'transaction_index', '_controller' => 'App\\Controller\\TransactionController::index'], null, ['GET' => 0], null, false, false, null]],
@@ -40,58 +38,63 @@ return [
                 .')'
                 .'|/api(?'
                     .'|/(?'
-                        .'|ajout/([^/]++)(*:194)'
+                        .'|listPart/([^/]++)(*:197)'
+                        .'|ajout/([^/]++)(*:219)'
+                        .'|bloqueDebloque(?'
+                            .'|User/([^/]++)(*:257)'
+                            .'|Part/([^/]++)(*:278)'
+                        .')'
                         .'|([^/]++)(?'
-                            .'|(*:213)'
-                            .'|/edit(*:226)'
-                            .'|(*:234)'
+                            .'|(*:298)'
+                            .'|/edit(*:311)'
+                            .'|(*:319)'
                         .')'
-                        .'|login(*:248)'
-                        .'|new(*:259)'
-                        .'|u(?'
-                            .'|tilisateur/([^/]++)(*:290)'
-                            .'|seeqgfrs(*:306)'
+                        .'|l(?'
+                            .'|ogin(*:336)'
+                            .'|isteUser/([^/]++)(*:361)'
                         .')'
-                        .'|modif/([^/]++)(*:329)'
+                        .'|new(*:373)'
+                        .'|utilisateur/([^/]++)(*:401)'
+                        .'|modif/([^/]++)(*:423)'
                     .')'
-                    .'|(?:/(index)(?:\\.([^/]++))?)?(*:366)'
+                    .'|(?:/(index)(?:\\.([^/]++))?)?(*:460)'
                     .'|/(?'
                         .'|d(?'
-                            .'|ocs(?:\\.([^/]++))?(*:400)'
+                            .'|ocs(?:\\.([^/]++))?(*:494)'
                             .'|epots(?'
                                 .'|(?:\\.([^/]++))?(?'
-                                    .'|(*:434)'
+                                    .'|(*:528)'
                                 .')'
                                 .'|/([^/\\.]++)(?:\\.([^/]++))?(?'
-                                    .'|(*:472)'
+                                    .'|(*:566)'
                                 .')'
                             .')'
                         .')'
                         .'|co(?'
-                            .'|ntexts/(.+)(?:\\.([^/]++))?(*:514)'
+                            .'|ntexts/(.+)(?:\\.([^/]++))?(*:608)'
                             .'|mpt_bancaires(?'
                                 .'|(?:\\.([^/]++))?(?'
-                                    .'|(*:556)'
+                                    .'|(*:650)'
                                 .')'
                                 .'|/([^/\\.]++)(?:\\.([^/]++))?(?'
-                                    .'|(*:594)'
+                                    .'|(*:688)'
                                 .')'
                             .')'
                         .')'
                         .'|partenaires(?'
                             .'|(?:\\.([^/]++))?(?'
-                                .'|(*:637)'
+                                .'|(*:731)'
                             .')'
                             .'|/([^/\\.]++)(?:\\.([^/]++))?(?'
-                                .'|(*:675)'
+                                .'|(*:769)'
                             .')'
                         .')'
                         .'|transactions(?'
                             .'|(?:\\.([^/]++))?(?'
-                                .'|(*:718)'
+                                .'|(*:812)'
                             .')'
                             .'|/([^/\\.]++)(?:\\.([^/]++))?(?'
-                                .'|(*:756)'
+                                .'|(*:850)'
                             .')'
                         .')'
                     .')'
@@ -106,50 +109,53 @@ return [
         136 => [[['_route' => '_profiler_exception', '_controller' => 'web_profiler.controller.exception::showAction'], ['token'], null, null, false, false, null]],
         149 => [[['_route' => '_profiler_exception_css', '_controller' => 'web_profiler.controller.exception::cssAction'], ['token'], null, null, false, false, null]],
         159 => [[['_route' => '_profiler', '_controller' => 'web_profiler.controller.profiler::panelAction'], ['token'], null, null, false, true, null]],
-        194 => [[['_route' => 'bloqr', '_controller' => 'App\\Controller\\AdminSystemController::bloquerPartenaie'], ['id'], ['PUT' => 0], null, false, true, null]],
-        213 => [[['_route' => 'transaction_show', '_controller' => 'App\\Controller\\TransactionController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        226 => [[['_route' => 'transaction_edit', '_controller' => 'App\\Controller\\TransactionController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        234 => [[['_route' => 'transaction_delete', '_controller' => 'App\\Controller\\TransactionController::delete'], ['id'], ['DELETE' => 0], null, false, true, null]],
-        248 => [[['_route' => 'loginch', '_controller' => 'App\\Controller\\UserController::login'], [], ['POST' => 0], null, false, false, null]],
-        259 => [[['_route' => 'user_new', '_controller' => 'App\\Controller\\UserController::addUser'], [], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        290 => [[['_route' => 'utilisaUpdate', '_controller' => 'App\\Controller\\UserController::updat'], ['id'], ['PUT' => 0], null, false, true, null]],
-        306 => [[['_route' => 'findugdqser', '_controller' => 'App\\Controller\\UserController::listeuser'], [], ['GET' => 0], null, false, false, null]],
-        329 => [[['_route' => 'bloquer', '_controller' => 'App\\Controller\\UserController::allouerCompte'], ['id'], ['PUT' => 0], null, false, true, null]],
-        366 => [[['_route' => 'api_entrypoint', '_controller' => 'api_platform.action.entrypoint', '_format' => '', '_api_respond' => 'true', 'index' => 'index'], ['index', '_format'], null, null, false, true, null]],
-        400 => [[['_route' => 'api_doc', '_controller' => 'api_platform.action.documentation', '_format' => '', '_api_respond' => 'true'], ['_format'], null, null, false, true, null]],
-        434 => [
+        197 => [[['_route' => 'listePart', '_controller' => 'App\\Controller\\AdminSystemController::listeuser'], ['id'], ['GET' => 0], null, false, true, null]],
+        219 => [[['_route' => 'bloqr', '_controller' => 'App\\Controller\\AdminSystemController::bloquerPartenaie'], ['id'], ['PUT' => 0], null, false, true, null]],
+        257 => [[['_route' => 'bloqueDebloqueUser', '_controller' => 'App\\Controller\\AdminSystemController::bloqueDebloqueUser'], ['id'], ['POST' => 0, 'GET' => 1], null, false, true, null]],
+        278 => [[['_route' => 'bloqueDebloquePart', '_controller' => 'App\\Controller\\AdminSystemController::bloqueDebloquePart'], ['id'], ['POST' => 0, 'GET' => 1], null, false, true, null]],
+        298 => [[['_route' => 'transaction_show', '_controller' => 'App\\Controller\\TransactionController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        311 => [[['_route' => 'transaction_edit', '_controller' => 'App\\Controller\\TransactionController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        319 => [[['_route' => 'transaction_delete', '_controller' => 'App\\Controller\\TransactionController::delete'], ['id'], ['DELETE' => 0], null, false, true, null]],
+        336 => [[['_route' => 'loginch', '_controller' => 'App\\Controller\\UserController::login'], [], ['POST' => 0], null, false, false, null]],
+        361 => [[['_route' => 'listeUserr', '_controller' => 'App\\Controller\\UserController::listeuser'], ['id'], ['GET' => 0], null, false, true, null]],
+        373 => [[['_route' => 'user_new', '_controller' => 'App\\Controller\\UserController::addUser'], [], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        401 => [[['_route' => 'utilisaUpdate', '_controller' => 'App\\Controller\\UserController::updat'], ['id'], ['PUT' => 0], null, false, true, null]],
+        423 => [[['_route' => 'bloquer', '_controller' => 'App\\Controller\\UserController::allouerCompte'], ['id'], ['PUT' => 0, 'GET' => 1], null, false, true, null]],
+        460 => [[['_route' => 'api_entrypoint', '_controller' => 'api_platform.action.entrypoint', '_format' => '', '_api_respond' => 'true', 'index' => 'index'], ['index', '_format'], null, null, false, true, null]],
+        494 => [[['_route' => 'api_doc', '_controller' => 'api_platform.action.documentation', '_format' => '', '_api_respond' => 'true'], ['_format'], null, null, false, true, null]],
+        528 => [
             [['_route' => 'api_depots_get_collection', '_controller' => 'api_platform.action.get_collection', '_format' => null, '_api_resource_class' => 'App\\Entity\\Depot', '_api_collection_operation_name' => 'get'], ['_format'], ['GET' => 0], null, false, true, null],
             [['_route' => 'api_depots_post_collection', '_controller' => 'api_platform.action.post_collection', '_format' => null, '_api_resource_class' => 'App\\Entity\\Depot', '_api_collection_operation_name' => 'post'], ['_format'], ['POST' => 0], null, false, true, null],
         ],
-        472 => [
+        566 => [
             [['_route' => 'api_depots_get_item', '_controller' => 'api_platform.action.get_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\Depot', '_api_item_operation_name' => 'get'], ['id', '_format'], ['GET' => 0], null, false, true, null],
             [['_route' => 'api_depots_delete_item', '_controller' => 'api_platform.action.delete_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\Depot', '_api_item_operation_name' => 'delete'], ['id', '_format'], ['DELETE' => 0], null, false, true, null],
             [['_route' => 'api_depots_put_item', '_controller' => 'api_platform.action.put_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\Depot', '_api_item_operation_name' => 'put'], ['id', '_format'], ['PUT' => 0], null, false, true, null],
         ],
-        514 => [[['_route' => 'api_jsonld_context', '_controller' => 'api_platform.jsonld.action.context', '_format' => 'jsonld', '_api_respond' => 'true'], ['shortName', '_format'], null, null, false, true, null]],
-        556 => [
+        608 => [[['_route' => 'api_jsonld_context', '_controller' => 'api_platform.jsonld.action.context', '_format' => 'jsonld', '_api_respond' => 'true'], ['shortName', '_format'], null, null, false, true, null]],
+        650 => [
             [['_route' => 'api_compt_bancaires_get_collection', '_controller' => 'api_platform.action.get_collection', '_format' => null, '_api_resource_class' => 'App\\Entity\\ComptBancaire', '_api_collection_operation_name' => 'get'], ['_format'], ['GET' => 0], null, false, true, null],
             [['_route' => 'api_compt_bancaires_post_collection', '_controller' => 'api_platform.action.post_collection', '_format' => null, '_api_resource_class' => 'App\\Entity\\ComptBancaire', '_api_collection_operation_name' => 'post'], ['_format'], ['POST' => 0], null, false, true, null],
         ],
-        594 => [
+        688 => [
             [['_route' => 'api_compt_bancaires_get_item', '_controller' => 'api_platform.action.get_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\ComptBancaire', '_api_item_operation_name' => 'get'], ['id', '_format'], ['GET' => 0], null, false, true, null],
             [['_route' => 'api_compt_bancaires_delete_item', '_controller' => 'api_platform.action.delete_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\ComptBancaire', '_api_item_operation_name' => 'delete'], ['id', '_format'], ['DELETE' => 0], null, false, true, null],
             [['_route' => 'api_compt_bancaires_put_item', '_controller' => 'api_platform.action.put_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\ComptBancaire', '_api_item_operation_name' => 'put'], ['id', '_format'], ['PUT' => 0], null, false, true, null],
         ],
-        637 => [
+        731 => [
             [['_route' => 'api_partenaires_get_collection', '_controller' => 'api_platform.action.get_collection', '_format' => null, '_api_resource_class' => 'App\\Entity\\Partenaires', '_api_collection_operation_name' => 'get'], ['_format'], ['GET' => 0], null, false, true, null],
             [['_route' => 'api_partenaires_post_collection', '_controller' => 'api_platform.action.post_collection', '_format' => null, '_api_resource_class' => 'App\\Entity\\Partenaires', '_api_collection_operation_name' => 'post'], ['_format'], ['POST' => 0], null, false, true, null],
         ],
-        675 => [
+        769 => [
             [['_route' => 'api_partenaires_get_item', '_controller' => 'api_platform.action.get_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\Partenaires', '_api_item_operation_name' => 'get'], ['id', '_format'], ['GET' => 0], null, false, true, null],
             [['_route' => 'api_partenaires_delete_item', '_controller' => 'api_platform.action.delete_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\Partenaires', '_api_item_operation_name' => 'delete'], ['id', '_format'], ['DELETE' => 0], null, false, true, null],
             [['_route' => 'api_partenaires_put_item', '_controller' => 'api_platform.action.put_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\Partenaires', '_api_item_operation_name' => 'put'], ['id', '_format'], ['PUT' => 0], null, false, true, null],
         ],
-        718 => [
+        812 => [
             [['_route' => 'api_transactions_get_collection', '_controller' => 'api_platform.action.get_collection', '_format' => null, '_api_resource_class' => 'App\\Entity\\Transaction', '_api_collection_operation_name' => 'get'], ['_format'], ['GET' => 0], null, false, true, null],
             [['_route' => 'api_transactions_post_collection', '_controller' => 'api_platform.action.post_collection', '_format' => null, '_api_resource_class' => 'App\\Entity\\Transaction', '_api_collection_operation_name' => 'post'], ['_format'], ['POST' => 0], null, false, true, null],
         ],
-        756 => [
+        850 => [
             [['_route' => 'api_transactions_get_item', '_controller' => 'api_platform.action.get_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\Transaction', '_api_item_operation_name' => 'get'], ['id', '_format'], ['GET' => 0], null, false, true, null],
             [['_route' => 'api_transactions_delete_item', '_controller' => 'api_platform.action.delete_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\Transaction', '_api_item_operation_name' => 'delete'], ['id', '_format'], ['DELETE' => 0], null, false, true, null],
             [['_route' => 'api_transactions_put_item', '_controller' => 'api_platform.action.put_item', '_format' => null, '_api_resource_class' => 'App\\Entity\\Transaction', '_api_item_operation_name' => 'put'], ['id', '_format'], ['PUT' => 0], null, false, true, null],

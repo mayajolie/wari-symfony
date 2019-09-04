@@ -62,7 +62,7 @@ class UserController extends AbstractController
        if (!empty($statuser) && $profil!=['ROLE_CAISIER'] ) {
        $partenstat =$user->getPartenaire()->getEtat();
        
-       if ($partenstat =='bloquer') 
+       if ($partenstat =='Bloque') 
        {
            $data = [
                'stat' => 400,
@@ -70,7 +70,7 @@ class UserController extends AbstractController
            ];
            return new JsonResponse($data, 400);
        }
-       elseif ($partenstat == 'Actif' ||  $statuser == 'bloquer')
+       elseif ($partenstat == 'Actif' ||  $statuser == 'Bloque')
        {
            $data = [
                'stat' => 400,
@@ -78,7 +78,7 @@ class UserController extends AbstractController
            ];
            return new JsonResponse($data, 400);
        }
-       elseif($statuser == 'bloquer'){
+       elseif($statuser == 'Bloque'){
            $dat= [
                'stat' => 400,
                'mesge' => 'Votre accés est bloqué,veillez vous adressez à votre administrateur!'
@@ -95,7 +95,7 @@ class UserController extends AbstractController
        }
     }
        elseif($profil==['ROLE_CAISIER']) {
-        if ($statuser =='bloquer') 
+        if ($statuser =='Bloque') 
         {
             $data = [
                 'stat' => 400,
@@ -164,7 +164,7 @@ class UserController extends AbstractController
         }
         
         $user->setPassword($passwordEncoder->encodePassword($user,$form->get('plainPassword')->getData()));
-        $user->setEtat('actif');      
+        $user->setEtat('Actif');      
 
 
         $user->setImageFile($Files);
@@ -218,7 +218,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/modif/{id}", name="bloquer", methods={"PUT"})
+     * @Route("/modif/{id}", name="bloquer", methods={"PUT","GET"})
      * @IsGranted({"ROLE_ADMIN"},message="vous netes pas autoriser a ajouter des utilisateur")
 
      */
@@ -258,30 +258,33 @@ class UserController extends AbstractController
     }
    
      /**
-      * @Route("/useeqgfrs", name="findugdqser", methods={"GET"})
+      * @Route("/listeUser/{id}", name="listeUserr", methods={"GET"})
       */
-    public function listeuser(){
-        //UserRepository $userRepo, SerializerInterface $serializer
-    //     $users = $userRepo->findAll();
-    //     $data = $serializer->serialize($users, 'json',[
-    //     'groups' => ['list']
-    //     ]);
-    //     return new Response($data, 200, [
-    //        'Content-Type' => 'application/json'
-    //    ]);
-   
-    //     // $uspar=$this->getUser()->getPartenaire();
-       // var_dump($uspar);die();
-        $repo = $this->getDoctrine()->getRepository(User::class);
-        $partenaire = $repo->findAll();
-        // foreach ($partenaire as  $value) {
-        //    $part= $value->getPartenaire();
-        //    if ($part==$uspar) {
-            var_dump($partenaire);
-            return $this->handleView($this->view($partenaire));
+    public function listeuser(UserRepository $userRepo, SerializerInterface $serializer,EntityManagerInterface $entityManager){
+        
+        $listUser= $entityManager->getRepository(User::class);
+        $users = $listUser->findAll();
+        // Serialize your object in Json
+        $jsonObject = $serializer->serialize($users, 'json', [
+            'circular_reference_handler' => function ($object) {
+                return $object->getId();
+            }
+        ]);
+
+        // For instance, return a Response with encoded Json
+        return new Response($jsonObject, 200, ['Content-Type' => 'application/json']);
+    // // //     // $uspar=$this->getUser()->getPartenaire();
+    //    // var_dump($uspar);die();
+    //     $repo = $this->getDoctrine()->getRepository(User::class);
+    //     $partenaire = $repo->findAll();
+    //     // foreach ($partenaire as  $value) {
+    //     //    $part= $value->getPartenaire();
+    //     //    if ($part==$uspar) {
+    //         var_dump($partenaire);
+    //         return $this->handleView($this->view($partenaire));
         
         
-    //     //var_dump($users);
+    // //     //var_dump($users);
     
     }
 

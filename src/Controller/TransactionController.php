@@ -6,6 +6,7 @@ use App\Entity\Tarifs;
 use App\Entity\Commission;
 use App\Entity\Transaction;
 use App\Entity\ComptBancaire;
+use App\Entity\Retrait;
 use App\Form\TransactionType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\TransactionRepository;
@@ -72,6 +73,7 @@ class TransactionController extends AbstractController
     {
         $commi = new Commission();
         $transaction = new Transaction();
+        $retrait=new Retrait();
         $form = $this->createForm(TransactionType::class, $transaction);
         $form->handleRequest($request);
         $Values = $request->request->all();
@@ -83,39 +85,37 @@ class TransactionController extends AbstractController
          $repo = $this->getDoctrine()->getRepository(ComptBancaire::class);
          $numcompt = $repo->findOneBy(['numCompt' => $part]);
          $val = $numcompt->getSolde();
+         //on recupere lensemble des tarifs
          $repo = $this->getDoctrine()->getRepository(Tarifs::class);
          $tar = $repo->findAll();
-            //recuper  l'utilisateur qui fait le transaction
+         //recuper  l'utilisateur qui fait le transaction
             $user = $this->getUser();
 
             $type = $Values['type'];
             
-            if ($montant < $val) {
-                foreach ($tar as $value) {
-                    $min = $value->getBorneInferieur();
-                    $max = $value->getBorneSuperieur();
-                    if (($min <= $montant) && ($montant >= $max)) {
-                        $com = $value->getValeur();
-                    }
-                }
-            $etat = (($com * 30) / 100);
-            $envoye = (($com * 10) / 100);
-            $retrait = (($com * 20) / 100);
-            $system = (($com * 40) / 100);
-
-         $code = date('s') . date('m') . date('d') . date('y') . date('m');
-      
-
-        $transaction->setDateTrans(new \DateTime());
-        $transaction->setUser($user);
-        $montant = $Values['montant'];
-        $montantpaye = $Values['montantpayer'];
-        $transaction->setMontantpaye($montantpaye);
-       
-        //on compare le montant qu'on veut recuperer et le montant qui existe dans le compte
-     
+          
       
             if ($type == '1') {
+                $montant = $Values['montant'];
+                if ($montant < $val) {
+                    foreach ($tar as $value) {
+                        $min = $value->getBorneInferieur();
+                        $max = $value->getBorneSuperieur();
+                        if (($min <= $montant) && ($montant >= $max)) {
+                            $com = $value->getValeur();
+                        }
+                    }
+                $etat = (($com * 30) / 100);
+                $envoye = (($com * 10) / 100);
+                $comretrait = (($com * 20) / 100);
+                $system = (($com * 40) / 100);
+    
+             $code = date('s') . date('m') . date('d') . date('y') . date('m');
+            $transaction->setDateTrans(new \DateTime());
+             $transaction->setUser($user);   
+            //on compare le montant qu'on veut recuperer et le montant qui existe dans le compte
+         
+
                 $transaction->setMontant($montant);
                 $transaction->setCodeTrans($code);
                 $numcompt->setSolde($numcompt->getSolde() - $montant);
@@ -125,37 +125,59 @@ class TransactionController extends AbstractController
                 $commi->setPartenaire($system);
                 $commi->setEtat($etat);
                 $commi->setEnvoi($envoye);
-                $commi->setRetrait($retrait);
+                $commi->setRetrait($comretrait);
                 $commi->setDate(new \DateTime());
                 $entityManager->persist($commi);
             }
-            if ($type == '2') {
-                $coderetrait = $Values['code'];
-                var_dump($coderetrait);
-                die();
-                $repo = $this->getDoctrine()->getRepository(Transaction::class);
-                $trans = $repo->findOneBy(['code' => $coderetrait]);
-                var_dump($trans);
-                die();
-                $transaction->setCode($trans);
-
-                //incrementant du solde du partenaire du montant du depot
-                $numcompt->setSolde($numcompt->getSolde() + $montant);
-                $numcompt->setSolde($numcompt->getSolde() + $retrait);
-                $transaction->setTypeTrans('Retrait');
-            }
-        } else {
+                
+         else {
 
             $data = [
-                'STATUS' => 201,
+                'STATUS' =>400,
                 'MESSAGE' => 'votre sole ne vous permet pas deffectuer cette transaction',
             ];
-            return new JsonResponse($data, 201);
+            return new JsonResponse($data, 400);
         }
+    }
+            if ($type == '2') {
+                $coderetrait = $Values['code'];
+                $repo = $this->getDoctrine()->getRepository(Transaction::class);
+                $trans = $repo->findOneBy(['codeTrans'=> $coderetrait]);
+                $modif=$trans->getId();
+                $name=$trans->getRetrait();
+                // foreach ($Values as  $value) {
+                //         $setter = 'set'.$name;
+                //         $modif->$setter($value);
+                //     }
+                // }
+                $coderetrait=$trans->getCodeTrans();
+                $montant=$trans->getMontant();
+                if($trans->getRetrait()=='Retrait'){
+                    $data = [
+                        'STATU' => 400,
+                        'MESSAG' => 'Desoler ce code est deja utiliser ',
+                    ];
+                    return new JsonResponse($data, 400);
+                }
+                else{
+                    $retrait->setTransaction($trans);
+                    $retrait->setCode($coderetrait);
+                    $retrait->setDateRetrait(new \DateTime());
+                    $retrait->setUser($user);
+                    $entityManager->persist($retrait);
 
 
+                }
+                //incrementant du solde du partenaire du montant du depot
+                $numcompt->setSolde($numcompt->getSolde() + $montant);
+                //$numcompt->setSolde($numcompt->getSolde() + $comretrait);
+                $transaction->setRetrait('Retrait');
+                //$entityManager->persist($transaction);
 
-
+            }    
+            
+        
+        
 
         $errors = $validator->validate($user);
         if (count($errors)) {
@@ -164,7 +186,6 @@ class TransactionController extends AbstractController
                 'Content-Type' => 'application/json'
             ]);
         }
-        $entityManager->persist($transaction);
         $entityManager->flush();
 
 
@@ -174,7 +195,8 @@ class TransactionController extends AbstractController
             'MESSAGE' => 'La transaction a ete bien effectuer',
         ];
         return new JsonResponse($data, 201);
-    }
+    
+}
 
     /**
      * @Route("/{id}", name="transaction_show", methods={"GET"})
