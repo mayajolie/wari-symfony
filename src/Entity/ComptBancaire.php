@@ -6,6 +6,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ApiResource()
@@ -22,23 +24,27 @@ class ComptBancaire
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"depotpart"})
      */
     private $numCompt;
 
     /**
      * @ORM\Column(type="bigint")
+     * @Groups({"depotpart"})
      */
     private $solde;
 
     
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Depot", mappedBy="numeroCompt")
+     * @Groups({"depotpart"})
      */
     private $depots;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Partenaires", inversedBy="comptBancaires")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"depotpart"})
      */
     private $partenaire;
 

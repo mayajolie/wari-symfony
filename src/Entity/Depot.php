@@ -25,22 +25,27 @@ class Depot
     /**
      * @ORM\Column(type="bigint")
      * @Assert\Range(min="75000",minMessage="La valeur minimum autorisée est {{ limit }}")
+     * @Groups({"depotpart"})
      */
     private $montant;
+    
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"depotpart"})
      */
     private $dateDepot;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="depots")
+     * @Groups({"depotpart"})
      */
     private $cassier;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\ComptBancaire", inversedBy="depots")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"depotpart"})
      */
     private $numeroCompt;
 

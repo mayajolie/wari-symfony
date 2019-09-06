@@ -14,11 +14,12 @@ return $getExpiry ? PHP_INT_MAX : Hydrator::hydrate(
                 '/depot',
             ],
             'name' => [
-                'depotfor',
+                'depot',
             ],
             'methods' => [
                 [
                     'POST',
+                    'GET',
                 ],
             ],
         ],

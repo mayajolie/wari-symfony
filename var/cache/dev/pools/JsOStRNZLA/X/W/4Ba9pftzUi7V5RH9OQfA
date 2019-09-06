@@ -21,6 +21,7 @@ return $getExpiry ? PHP_INT_MAX : Hydrator::hydrate(
             'groups' => [
                 1 => [
                     'listUsers',
+                    'depotpart',
                 ],
             ],
         ],

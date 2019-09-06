@@ -27,16 +27,19 @@ class Partenaires
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"depotpart"})
      */
     private $raisonSocial;
     /**
      * @ORM\Column(name="ninea",type="string", length=255, unique=true)
      * @Assert\NotBlank(message="Vous devez insérer un ninea")
+     * @Groups({"depotpart"})
      */
     private $ninea;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"depotpart"})
      */
     private $adresse;
 
@@ -48,6 +51,7 @@ class Partenaires
      *     match=true,
      *     message="Votre numero ne doit pas contenir de lettre"
      * )
+     * @Groups({"depotpart"})
      */
     private $telephone;
 

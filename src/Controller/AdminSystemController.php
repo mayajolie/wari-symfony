@@ -11,6 +11,7 @@ use App\Entity\Partenaires;
 use App\Form\PartenaireType;
 use App\Entity\ComptBancaire;
 use App\Repository\UserRepository;
+use App\Repository\PartenairesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -110,15 +111,6 @@ class AdminSystemController extends FOSRestController
   
     }
 
-    // /**
-    //  * @Rest\Get("/partenaires", name="findpartenaires")
-    //  */
-    // public function liste()
-    // {
-    //     $repo = $this->getDoctrine()->getRepository(Partenaires::class);
-    //     $partenaire = $repo->findAll();
-    //     return $this->handleView($this->view($partenaire));
-    // }
      /**
       * @Route("/listPart/{id}", name="listePart", methods={"GET"})
       */
@@ -135,38 +127,38 @@ class AdminSystemController extends FOSRestController
         return new Response($jsonObject, 200, ['Content-Type' => 'application/json']);
 
         }
-    /**
-     * @Route("/ajout/{id}", name="bloqr", methods={"PUT"})
-     * @IsGranted("ROLE_SUPER_ADMIN")
-     */
-    public function bloquerPartenaie(Request $request, SerializerInterface $serializer, Partenaires $partenaire, ValidatorInterface $validator, EntityManagerInterface $entityManager)
-    {
-        $bloqueP = $entityManager->getRepository(Partenaires::class)->find($partenaire->getId());
+    // /**
+    //  * @Route("/ajout/{id}", name="bloqr", methods={"PUT"})
+    //  * @IsGranted("ROLE_SUPER_ADMIN")
+    //  */
+    // public function bloquerPartenaie(Request $request, SerializerInterface $serializer, Partenaires $partenaire, ValidatorInterface $validator, EntityManagerInterface $entityManager)
+    // {
+    //     $bloqueP = $entityManager->getRepository(Partenaires::class)->find($partenaire->getId());
     
-        $data = json_decode($request->getContent());
-        foreach ($data as $key => $value) {
-            if ($key && !empty($value)) {
-                $name = ucfirst($key);
-                $setter = 'set'.$name;
-                $bloqueP->$setter($value);
-            }
-        }
-        $errors = $validator->validate($bloqueP);
-        if (count($errors)) {
-            $errors = $serializer->serialize($errors, 'json');
+    //     $data = json_decode($request->getContent());
+    //     foreach ($data as $key => $value) {
+    //         if ($key && !empty($value)) {
+    //             $name = ucfirst($key);
+    //             $setter = 'set'.$name;
+    //             $bloqueP->$setter($value);
+    //         }
+    //     }
+    //     $errors = $validator->validate($bloqueP);
+    //     if (count($errors)) {
+    //         $errors = $serializer->serialize($errors, 'json');
 
-            return new Response($errors, 500, [
-                'Content-Type' => 'application/json',
-            ]);
-        }
-        $entityManager->flush();
-        $data = [
-            'statu' => 200,
-            'messag' => 'L \'etat du partenaire a bien été mis à jour',
-        ];
+    //         return new Response($errors, 500, [
+    //             'Content-Type' => 'application/json',
+    //         ]);
+    //     }
+    //     $entityManager->flush();
+    //     $data = [
+    //         'statu' => 200,
+    //         'messag' => 'L \'etat du partenaire a bien été mis à jour',
+    //     ];
 
-        return new JsonResponse($data);
-    }
+    //     return new JsonResponse($data);
+    // }
     /**
      * @Route("/comptB", name="compt", methods={"POST"})
      */
@@ -207,10 +199,10 @@ class AdminSystemController extends FOSRestController
     }
 
     /**
-     * @Route("/depot", name="depotfor", methods={"POST"})
+     * @Route("/depot", name="depot", methods={"POST","GET"})
      * @IsGranted("ROLE_CAISIER")
      */
-    public function Depotav(Request $request, EntityManagerInterface $entityManager)
+    public function Depotav(Request $request, EntityManagerInterface $entityManager,SerializerInterface $serializer)
     {
      $depot = new Depot();    
      $form = $this->createForm(DepotType::class, $depot);
@@ -224,8 +216,8 @@ class AdminSystemController extends FOSRestController
      $numeroCompt=$Values['Numero'];
      $repo = $this->getDoctrine()->getRepository(ComptBancaire::class);
      $numcompt = $repo->findOneBy(['numCompt'=>$numeroCompt]);
+     
      $nom=$numcompt->getPartenaire();
-     dump($nom); die();
 
      $depot->setNumeroCompt($numcompt);
     //incrementant du solde du partenaire du montant du depot
@@ -247,16 +239,44 @@ class AdminSystemController extends FOSRestController
     $entityManager->persist($depot);
     $entityManager->flush();
 
-    $data = [
-        'status_1' => 201,
-        'message' => 'Le depot  a été enregistré',
-    ];
+    // $data = [
+    //     'status_1' => 201,
+    //     'message' => 'Le depot  a été enregistré',
+    // ];
 
-    return new JsonResponse($data, 201);
+    // return new JsonResponse($data, 201);
     }
-
+    $dat = $serializer->serialize($numcompt, 'json',[
+        'groups'=>['depotpart']
+    ]);
+    return new Response($dat, 200, [
+        'Content-Type' => 'application/json'
+    ]);
     }
-
+    /**
+     * @Route("/finddepot", name="depotfor", methods={"POST"})
+     * @IsGranted("ROLE_CAISIER")
+     */
+    public function infoPart(Request $request,PartenairesRepository $partRepository, SerializerInterface $serializer,EntityManagerInterface $entityManager )
+    {
+        $values = json_decode($request->getContent(),true);
+        $liste= $this->getDoctrine()->getRepository(ComptBancaire::class)->findOneBy(['numCompt'=>$values['numeroCompt']]);
+        if (!$values) {
+            $values =$request->request->all();
+        }
+        if (!$liste) 
+        {
+            throw new HttpException (403,'Numero de compte incorrect');
+        }
+        $data = $serializer->serialize($liste, 'json',[
+            'groups'=>['depotpart']
+        ]);
+        return new Response($data, 200, [
+            'Content-Type' => 'application/json'
+        ]);
+       
+    
+    }
     /**
     * @Route("/bloqueDebloqueUser/{id}", name="bloqueDebloqueUser", methods={"POST","GET"})
     */

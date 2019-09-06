@@ -33,7 +33,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"listUsers"})
+     * @Groups({"listUsers","depotpart"})
      */
     private $username;
 
@@ -56,7 +56,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"listUsers"})
+     * @Groups({"listUsers","depotpart"})
      */
     private $prenom;
 

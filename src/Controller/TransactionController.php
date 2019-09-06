@@ -110,7 +110,7 @@ class TransactionController extends AbstractController
                 $comretrait = (($com * 20) / 100);
                 $system = (($com * 40) / 100);
     
-             $code = date('s') . date('m') . date('d') . date('y') . date('m');
+             $code = date('d') . date('m') . date('y') . date('s') . date('m');
             $transaction->setDateTrans(new \DateTime());
              $transaction->setUser($user);   
             //on compare le montant qu'on veut recuperer et le montant qui existe dans le compte
@@ -128,6 +128,9 @@ class TransactionController extends AbstractController
                 $commi->setRetrait($comretrait);
                 $commi->setDate(new \DateTime());
                 $entityManager->persist($commi);
+
+                $entityManager->persist($transaction);
+
             }
                 
          else {
@@ -138,20 +141,16 @@ class TransactionController extends AbstractController
             ];
             return new JsonResponse($data, 400);
         }
+
     }
             if ($type == '2') {
                 $coderetrait = $Values['code'];
+                $cniB = $Values['cniB'];
                 $repo = $this->getDoctrine()->getRepository(Transaction::class);
                 $trans = $repo->findOneBy(['codeTrans'=> $coderetrait]);
-                $modif=$trans->getId();
-                $name=$trans->getRetrait();
-                // foreach ($Values as  $value) {
-                //         $setter = 'set'.$name;
-                //         $modif->$setter($value);
-                //     }
-                // }
                 $coderetrait=$trans->getCodeTrans();
-                $montant=$trans->getMontant();
+                $montantreti=$trans->getMontant();
+
                 if($trans->getRetrait()=='Retrait'){
                     $data = [
                         'STATU' => 400,
@@ -160,32 +159,35 @@ class TransactionController extends AbstractController
                     return new JsonResponse($data, 400);
                 }
                 else{
+                    foreach ($tar as $value) {
+                        $min = $value->getBorneInferieur();
+                        $max = $value->getBorneSuperieur();
+                        if (($min <= $montantreti) && ($montantreti >= $max)) {
+                            $com = $value->getValeur();
+                        }
+                    }
+                $comretrait = (($com * 20) / 100);
+    
                     $retrait->setTransaction($trans);
-                    $retrait->setCode($coderetrait);
+                    $retrait->setCode($coderetrait);     
                     $retrait->setDateRetrait(new \DateTime());
                     $retrait->setUser($user);
                     $entityManager->persist($retrait);
-
-
+                     //incrementant du solde du partenaire du montant du depot
+                $numcompt->setSolde($numcompt->getSolde() + $montantreti);
+                $numcompt->setSolde($numcompt->getSolde() + $comretrait);
+                $trans->setRetrait('Retrait');
+                $trans->setCniB($cniB);
                 }
-                //incrementant du solde du partenaire du montant du depot
-                $numcompt->setSolde($numcompt->getSolde() + $montant);
-                //$numcompt->setSolde($numcompt->getSolde() + $comretrait);
-                $transaction->setRetrait('Retrait');
-                //$entityManager->persist($transaction);
 
-            }    
-            
-        
-        
-
-        $errors = $validator->validate($user);
+               $errors = $validator->validate($user);
         if (count($errors)) {
             $errors = $serializer->serialize($errors, 'json');
             return new Response($errors, 500, [
                 'Content-Type' => 'application/json'
             ]);
         }
+    } 
         $entityManager->flush();
 
 
@@ -195,17 +197,49 @@ class TransactionController extends AbstractController
             'MESSAGE' => 'La transaction a ete bien effectuer',
         ];
         return new JsonResponse($data, 201);
+     
+    
+    // else{
+    //     $data = [
+    //         'STATUS' => 400,
+    //         'MESSAGE' => 'Desoler la transaction n\'a ete bien effectuer',
+    //     ];
+    //     return new JsonResponse($data, 400);
+    // }
+            
+        
+        
+
+        
     
 }
 
     /**
-     * @Route("/{id}", name="transaction_show", methods={"GET"})
+     * @Route("/listtrans", name="transaction_show", methods={"GET"})
      */
-    public function show(Transaction $transaction): Response
+    public function show(Request  $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, ValidatorInterface $validator): Response
     {
-        return $this->render('transaction/show.html.twig', [
-            'transaction' => $transaction,
-        ]);
+        $user=$this->getUser()->getId();
+        $repo = $this->getDoctrine()->getRepository(Transaction::class);
+        $trans = $repo->findOneBy(['user'=> $user]);
+       // dump($trans); die();
+       //    $listtrans = $trans->findAll();
+       $jsonObject = $serializer->serialize($trans, 'json', [
+        'circular_reference_handler' => function ($object) {
+            return $object->getId();
+        }
+    ]);
+
+    // For instance, return a Response with encoded Json
+    return new Response($jsonObject, 200, ['Content-Type' => 'application/json']);
+// // 
+     
+
+       //return new JsonResponse($trans);
+       // return ($trans);
+        // return $this->render('transaction/show.html.twig', [
+        //     'transaction' => $transaction,
+        // ]);
     }
 
     /**
