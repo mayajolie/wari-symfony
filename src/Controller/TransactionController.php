@@ -150,6 +150,7 @@ class TransactionController extends AbstractController
                 $trans = $repo->findOneBy(['codeTrans'=> $coderetrait]);
                 $coderetrait=$trans->getCodeTrans();
                 $montantreti=$trans->getMontant();
+                var_dump($montantreti); die();
 
                 if($trans->getRetrait()=='Retrait'){
                     $data = [

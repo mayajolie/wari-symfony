@@ -47,20 +47,28 @@ class UserController extends AbstractController
         
         if (!$user) 
         {
-            return $this->createNotFoundException('Nom d\'Utilisateur incorrect');
+            $da= [
+                'stat' => 400,
+                'mesg' => 'Nom d\'Utilisateur incorrect'
+            ];
+            return   new JsonResponse($da, 400);
         }
         $isValid = $this->passwordEncoder->isPasswordValid($user,$values->password);
         if (!$isValid) 
         {
-            return new BadCredentialsException();
-        }
+            $da= [
+                'stat' => 400,
+                'mesg' => 'Mot de passe incorrect'
+            ];
+            return   new JsonResponse($da, 400);        }
   //===============================================================================
      
         $profil = $user->getRoles(); 
-       $statuser = $user->getEtat();
       
        if (!empty($statuser) && $profil!=['ROLE_CAISIER'] ) {
        $partenstat =$user->getPartenaire()->getEtat();
+       $statuser = $user->getEtat();
+
        
        if ($partenstat =='Bloque') 
        {
@@ -95,6 +103,7 @@ class UserController extends AbstractController
        }
     }
        elseif($profil==['ROLE_CAISIER']) {
+        $statuser = $user->getEtat();
         if ($statuser =='Bloque') 
         {
             $data = [

@@ -96,19 +96,11 @@ class AdminSystemController extends FOSRestController
             } 
             $entityManager->persist($compb); 
             $entityManager->flush();
-                
-            
-  
                 $data =[
                     'STATUS' => 201,
                     'MESSAGE' => 'Le partenaire a été créé son compte bancaire et son administrateur',
                 ];
                 return new JsonResponse($data, 201);
-
-                        
-            
-
-  
     }
 
      /**
@@ -127,38 +119,6 @@ class AdminSystemController extends FOSRestController
         return new Response($jsonObject, 200, ['Content-Type' => 'application/json']);
 
         }
-    // /**
-    //  * @Route("/ajout/{id}", name="bloqr", methods={"PUT"})
-    //  * @IsGranted("ROLE_SUPER_ADMIN")
-    //  */
-    // public function bloquerPartenaie(Request $request, SerializerInterface $serializer, Partenaires $partenaire, ValidatorInterface $validator, EntityManagerInterface $entityManager)
-    // {
-    //     $bloqueP = $entityManager->getRepository(Partenaires::class)->find($partenaire->getId());
-    
-    //     $data = json_decode($request->getContent());
-    //     foreach ($data as $key => $value) {
-    //         if ($key && !empty($value)) {
-    //             $name = ucfirst($key);
-    //             $setter = 'set'.$name;
-    //             $bloqueP->$setter($value);
-    //         }
-    //     }
-    //     $errors = $validator->validate($bloqueP);
-    //     if (count($errors)) {
-    //         $errors = $serializer->serialize($errors, 'json');
-
-    //         return new Response($errors, 500, [
-    //             'Content-Type' => 'application/json',
-    //         ]);
-    //     }
-    //     $entityManager->flush();
-    //     $data = [
-    //         'statu' => 200,
-    //         'messag' => 'L \'etat du partenaire a bien été mis à jour',
-    //     ];
-
-    //     return new JsonResponse($data);
-    // }
     /**
      * @Route("/comptB", name="compt", methods={"POST"})
      */
@@ -216,7 +176,7 @@ class AdminSystemController extends FOSRestController
      $numeroCompt=$Values['Numero'];
      $repo = $this->getDoctrine()->getRepository(ComptBancaire::class);
      $numcompt = $repo->findOneBy(['numCompt'=>$numeroCompt]);
-     
+     $Values['solde']=$numcompt->getSolde();
      $nom=$numcompt->getPartenaire();
 
      $depot->setNumeroCompt($numcompt);
@@ -238,13 +198,6 @@ class AdminSystemController extends FOSRestController
     //enregistrement au niveau du depot
     $entityManager->persist($depot);
     $entityManager->flush();
-
-    // $data = [
-    //     'status_1' => 201,
-    //     'message' => 'Le depot  a été enregistré',
-    // ];
-
-    // return new JsonResponse($data, 201);
     }
     $dat = $serializer->serialize($numcompt, 'json',[
         'groups'=>['depotpart']
@@ -262,7 +215,7 @@ class AdminSystemController extends FOSRestController
         $values = json_decode($request->getContent(),true);
         $liste= $this->getDoctrine()->getRepository(ComptBancaire::class)->findOneBy(['numCompt'=>$values['numeroCompt']]);
         if (!$values) {
-            $values =$request->request->all();
+            $values=$request->request->all();
         }
         if (!$liste) 
         {
@@ -282,12 +235,13 @@ class AdminSystemController extends FOSRestController
     */
     public function bloqueDebloqueUser(Request $request,EntityManagerInterface $mng,$id)
     {
+        $bloque='Bloque';
         $user=$this->getDoctrine()->getRepository(User::class)->findOneBy(['id'=>$id]);
-        if ($user->getEtat()=='Actif') {
-            $user->setEtat('Bloque');
+        if($user->getEtat()=='Actif') {
+            $user->setEtat($bloque);
         }
         else {
-            $user->setEtat('Bloque');
+            $user->setEtat($bloque);
         }
         $mng = $this->getDoctrine()->getManager();
         $mng->persist($user);
@@ -308,11 +262,11 @@ class AdminSystemController extends FOSRestController
         foreach ($users as $key => $value) {
             $this->bloqueDebloqueUser($request,$mng,$value->getId());
         }
-        if ($part->getEtat()=='Actif') {
-            $part->setEtat('Bloque');
+        if($part->getEtat()=='Actif'){
+            $part->setEtat($bloque);
         }
         else {
-            $part->setEtat('Bloque');
+            $part->setEtat($bloque);
         }
         $mng= $this->getDoctrine()->getManager();
         $mng->persist($part);
