@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Tarifs;
+use App\Entity\User;
 use App\Entity\Commission;
 use App\Entity\Transaction;
 use App\Entity\ComptBancaire;
@@ -10,6 +11,7 @@ use App\Entity\Retrait;
 use App\Form\TransactionType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\TransactionRepository;
+use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -150,7 +152,6 @@ class TransactionController extends AbstractController
                 $trans = $repo->findOneBy(['codeTrans'=> $coderetrait]);
                 $coderetrait=$trans->getCodeTrans();
                 $montantreti=$trans->getMontant();
-                var_dump($montantreti); die();
 
                 if($trans->getRetrait()=='Retrait'){
                     $data = [
@@ -197,22 +198,7 @@ class TransactionController extends AbstractController
             'STATUS' => 201,
             'MESSAGE' => 'La transaction a ete bien effectuer',
         ];
-        return new JsonResponse($data, 201);
-     
-    
-    // else{
-    //     $data = [
-    //         'STATUS' => 400,
-    //         'MESSAGE' => 'Desoler la transaction n\'a ete bien effectuer',
-    //     ];
-    //     return new JsonResponse($data, 400);
-    // }
-            
-        
-        
-
-        
-    
+        return new JsonResponse($data, 201); 
 }
 
     /**
@@ -222,25 +208,43 @@ class TransactionController extends AbstractController
     {
         $user=$this->getUser()->getId();
         $repo = $this->getDoctrine()->getRepository(Transaction::class);
-        $trans = $repo->findOneBy(['user'=> $user]);
-       // dump($trans); die();
-       //    $listtrans = $trans->findAll();
-       $jsonObject = $serializer->serialize($trans, 'json', [
-        'circular_reference_handler' => function ($object) {
-            return $object->getId();
+        $trans = $repo->findAll();
+        // foreach ($trans as  $value) {
+        // dump($value)        }
+        $re = $this->getDoctrine()->getRepository(Retrait::class);
+        $ret = $re->findAll();
+       // dump($ret); die();
+        $totaltras=[];
+        if (!empty($trans)) {
+            foreach ($trans as  $value) {
+                     if($value->getUser()->getId()==$user){
+                    $totaltras[]=$value;
+                     } 
+
+                        
+            }
+            $dat = $serializer->serialize($totaltras ,'json',[
+                'groups'=>['trans']
+            ]); 
         }
+        if (!empty($ret)) {
+            foreach ($ret as  $value) {
+                     if($value->getUser()->getId()==$user){
+                    $totaltras[]=$value;
+                     } 
+
+                        
+            }
+            $dat = $serializer->serialize($totaltras ,'json',[
+                'groups'=>['trans']
+            ]); 
+        }
+  
+    return new Response($dat, 200, [
+        'Content-Type' => 'application/json'
     ]);
 
-    // For instance, return a Response with encoded Json
-    return new Response($jsonObject, 200, ['Content-Type' => 'application/json']);
-// // 
      
-
-       //return new JsonResponse($trans);
-       // return ($trans);
-        // return $this->render('transaction/show.html.twig', [
-        //     'transaction' => $transaction,
-        // ]);
     }
 
     /**

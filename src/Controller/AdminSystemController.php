@@ -235,13 +235,12 @@ class AdminSystemController extends FOSRestController
     */
     public function bloqueDebloqueUser(Request $request,EntityManagerInterface $mng,$id)
     {
-        $bloque='Bloque';
         $user=$this->getDoctrine()->getRepository(User::class)->findOneBy(['id'=>$id]);
         if($user->getEtat()=='Actif') {
-            $user->setEtat($bloque);
+            $user->setEtat('Bloque');
         }
         else {
-            $user->setEtat($bloque);
+            $user->setEtat('Actif');
         }
         $mng = $this->getDoctrine()->getManager();
         $mng->persist($user);
@@ -262,11 +261,12 @@ class AdminSystemController extends FOSRestController
         foreach ($users as $key => $value) {
             $this->bloqueDebloqueUser($request,$mng,$value->getId());
         }
+        $bloque='Bloque';
         if($part->getEtat()=='Actif'){
             $part->setEtat($bloque);
         }
         else {
-            $part->setEtat($bloque);
+            $part->setEtat('Actif');
         }
         $mng= $this->getDoctrine()->getManager();
         $mng->persist($part);

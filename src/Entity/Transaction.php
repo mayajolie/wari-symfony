@@ -7,6 +7,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ApiResource()
@@ -23,11 +25,13 @@ class Transaction
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"trans"})
      */
     private $nomE;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"trans"})
      */
     private $prenomE;
 
@@ -44,11 +48,13 @@ class Transaction
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"trans"})
      */
     private $nomB;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"trans"})
      */
     private $prenomB;
  /**
@@ -64,6 +70,7 @@ class Transaction
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"trans"})
      */
     private $dateTrans;
 
@@ -80,6 +87,7 @@ class Transaction
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="transactions")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"trans"})
      */
     private $user;
 
@@ -91,6 +99,7 @@ class Transaction
      *     match=true,
      *     message="Votre numero ne doit pas contenir de lettre"
      * )
+     * @Groups({"trans"})
      */
     private $telephoneE;
 
@@ -102,11 +111,13 @@ class Transaction
      *     match=true,
      *     message="Votre numero ne doit pas contenir de lettre"
      * )
+     * @Groups({"trans"})
      */
     private $telephoneB;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Groups({"trans"})
      */
     private $montant;
 

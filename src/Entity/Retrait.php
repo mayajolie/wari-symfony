@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\RetraitRepository")
@@ -23,16 +25,19 @@ class Retrait
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"trans"})
      */
     private $dateretrait;
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Transaction", cascade={"persist", "remove"})
+     * @Groups({"trans"})
      */
     private $transaction;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="retraits")
+     * @Groups({"trans"})
      */
     private $user;
 

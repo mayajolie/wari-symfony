@@ -28,12 +28,15 @@ class User implements UserInterface
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Groups({"listUsers"})
+     * @Groups({"users"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Groups({"listUsers","depotpart"})
+     * @Groups({"trans","users"})
+
      */
     private $username;
 
@@ -50,19 +53,19 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"listUsers"})
+     * @Groups({"users"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"listUsers","depotpart"})
+     * @Groups({"users","depotpart"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"listUsers"})
+     * @Groups({"users"})
      */
     private $email;
 
@@ -74,25 +77,24 @@ class User implements UserInterface
      *     match=true,
      *     message="Votre numero ne doit pas contenir de lettre"
      * )
-     * @Groups({"listUsers"})
+     * @Groups({"users"})
      */
     private $telephone;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"listUsers"})
+     * @Groups({"users"})
      */
     private $adresse;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"listUsers"})
+     * @Groups({"users"})
      */
     private $etat;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Partenaires", inversedBy="users")
-     * @Groups({"listUsers"})
      */
     private $partenaire;
 
@@ -137,6 +139,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="bigint", nullable=true)
+     * @Groups({"users"})
      */
     private $compteBancaire;
 

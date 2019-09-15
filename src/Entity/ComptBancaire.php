@@ -24,13 +24,13 @@ class ComptBancaire
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"depotpart"})
+     * @Groups({"depotpart","compt"})
      */
     private $numCompt;
 
     /**
      * @ORM\Column(type="bigint")
-     * @Groups({"depotpart"})
+     * @Groups({"depotpart","compt"})
      */
     private $solde;
 

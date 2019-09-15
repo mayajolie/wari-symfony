@@ -14,7 +14,7 @@ return $getExpiry ? PHP_INT_MAX : Hydrator::hydrate(
                 '/modif/{id}',
             ],
             'name' => [
-                'bloquer',
+                'modif',
             ],
             'methods' => [
                 [

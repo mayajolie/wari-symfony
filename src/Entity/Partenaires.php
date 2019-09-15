@@ -62,12 +62,12 @@ class Partenaires
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="partenaire")
-     * @Groups({"listUsers"})
      */
     private $users;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\ComptBancaire", mappedBy="partenaire")
+     * @Groups({"compt"})
      */
     private $comptBancaires;
 
